@@ -1,3 +1,4 @@
+import ImageView from './components/ImageView';
 import BreadCrumb from './components/BreadCrumb';
 import Nodes from './components/Nodes';
 import request from './utils/fetch';
@@ -9,6 +10,7 @@ export default function App($app) {
     depth: [],
   };
 
+  const imageView = new ImageView({ $app, initialState: this.state.selectedNodeImage });
   const breadsCrumb = new BreadCrumb({ $app, initialState: this.state.depth });
   const nodes = new Nodes({
     $app,
@@ -33,11 +35,13 @@ export default function App($app) {
     }
   };
 
-  onClick = ({ type }) => {
-    if (type === 'DIRECTORY') {
-    } else if (type === 'FILE') {
-    }
+  onClick = async (node) => {
+    try {
+      if (node.type === 'DIRECTORY') {
+        const nextNodes = await request(node.id);
+        this.setState({ ...this.state, depth: [...this.state.depth, node], nodes: nextNodes });
+      } else if (type === 'FILE') {
+      }
+    } catch (error) {}
   };
-
-  this.render;
 }
