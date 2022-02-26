@@ -17,4 +17,15 @@ export default function BreadCrumb({ $app, initialState }) {
         .join('')}
     `;
   };
+
+  this.$target.addEventListener('click', (e) => {
+    const $navItem = e.target.closet('.nav-item');
+
+    if ($navItem) {
+      const { index } = $navItem.dataset;
+      this.onClick(index ? parseInt(index, 10) : null);
+    }
+  });
+
+  this.render();
 }
