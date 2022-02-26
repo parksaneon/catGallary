@@ -29,15 +29,23 @@ export default function Nodes({ $app, initialState, onClick, onBackClick }) {
       : nodesTemplate;
   };
 
-  [...this.$target.querySelectorAll('.Node')].forEach(($node) => {
-    $node.addEventListener('click', (e) => {
-      const { nodeId } = e.target.dataset;
+  this.$target.addEventListener('click', (e) => {
+    const $node = e.target.closet('.Node');
+
+    if ($node) {
+      const { nodeId } = $node.dataset;
+
+      if (!nodeId) {
+        this.onBackClick();
+        return;
+      }
+
       const selectedNode = this.state.nodes.find(({ id }) => id === nodeId);
 
       if (selectedNode) {
         this.onClick(selectedNode);
       }
-    });
+    }
   });
 
   this.render;
