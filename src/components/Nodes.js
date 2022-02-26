@@ -1,4 +1,4 @@
-function Nodes({ $app, initialState, onClick }) {
+export default function Nodes({ $app, initialState, onClick }) {
   this.state = initialState;
   this.onClick = onClick;
 

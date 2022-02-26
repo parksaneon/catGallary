@@ -1,4 +1,4 @@
-function BreadCrumb({ $app, initialState }) {
+export default function BreadCrumb({ $app, initialState }) {
   this.state = initialState;
 
   this.$target = document.createElement('nav');
