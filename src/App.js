@@ -8,13 +8,45 @@ export default function App($app) {
     isRoot: false,
     nodes: [],
     depth: [],
+    selectedFilePath: null,
   };
 
-  const imageView = new ImageView({ $app, initialState: this.state.selectedNodeImage });
+  const imageView = new ImageView({ $app, initialState: this.state.selectedFilePath });
   const breadsCrumb = new BreadCrumb({ $app, initialState: this.state.depth });
   const nodes = new Nodes({
     $app,
     initialState: { isRoot: this.state.isRoot, nodes: this.state.nodes },
+    onClick: async (node) => {
+      try {
+        if (node.type === 'DIRECTORY') {
+          const nextNodes = await request(node.id);
+          this.setState({ ...this.state, depth: [...this.state.depth, node], nodes: nextNodes });
+        } else if (type === 'FILE') {
+          this.setState({ ...this.state, selectedFilePath: node.filePath });
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    },
+    onBackClick: async () => {
+      try {
+        const nextState = { ...this.state };
+        nextState.depth.pop();
+
+        const prevNodeId =
+          nextState.depth.length === 0 ? null : nextState.depth[nextState.depth.length - 1];
+
+        if (prevNodeId === null) {
+          const rootNodes = await request();
+          this.setState({ ...nextState, isRoot: true, nodes: rootNodes });
+        } else {
+          const prevNodes = await request(prevNodeId);
+          this.setState({ ...nextNodes, isRoot: false, nodes: prevNodes });
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    },
   });
 
   this.setState = (nextState) => {
@@ -24,6 +56,7 @@ export default function App($app) {
       isRoot: this.state.isRoot,
       nodes: this.state.nodes,
     });
+    imageView.setState(this.state.selectedFilePath);
   };
 
   const init = async () => {
@@ -33,15 +66,5 @@ export default function App($app) {
     } catch (error) {
       throw new Error(`에러 발생 ${e.message}`);
     }
-  };
-
-  onClick = async (node) => {
-    try {
-      if (node.type === 'DIRECTORY') {
-        const nextNodes = await request(node.id);
-        this.setState({ ...this.state, depth: [...this.state.depth, node], nodes: nextNodes });
-      } else if (type === 'FILE') {
-      }
-    } catch (error) {}
   };
 }

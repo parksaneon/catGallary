@@ -1,6 +1,7 @@
-export default function Nodes({ $app, initialState, onClick }) {
+export default function Nodes({ $app, initialState, onClick, onBackClick }) {
   this.state = initialState;
   this.onClick = onClick;
+  this.onBackClick = onBackClick;
 
   this.$target = document.createElement('ul');
   $app.appendChild(this.$target);
