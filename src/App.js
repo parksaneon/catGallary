@@ -3,6 +3,8 @@ import BreadCrumb from './components/BreadCrumb';
 import Nodes from './components/Nodes';
 import request from './utils/fetch';
 
+const cache = {};
+
 export default function App($app) {
   this.state = {
     isRoot: false,
@@ -19,8 +21,13 @@ export default function App($app) {
     onClick: async (node) => {
       try {
         if (node.type === 'DIRECTORY') {
-          const nextNodes = await request(node.id);
-          this.setState({ ...this.state, depth: [...this.state.depth, node], nodes: nextNodes });
+          if (cache[node.id]) {
+            this.setState({ ...this.state, depth: [...this.state.depth, node], nodes: nextNodes });
+          } else {
+            const nextNodes = await request(node.id);
+            this.setState({ ...this.state, depth: [...this.state.depth, node], nodes: nextNodes });
+            cache[node.id] = nextNodes;
+          }
         } else if (type === 'FILE') {
           this.setState({ ...this.state, selectedFilePath: node.filePath });
         }
@@ -38,10 +45,10 @@ export default function App($app) {
 
         if (prevNodeId === null) {
           const rootNodes = await request();
-          this.setState({ ...nextState, isRoot: true, nodes: rootNodes });
+          this.setState({ ...nextState, isRoot: true, nodes: cache.rootNodes });
         } else {
           const prevNodes = await request(prevNodeId);
-          this.setState({ ...nextNodes, isRoot: false, nodes: prevNodes });
+          this.setState({ ...nextNodes, isRoot: false, nodes: cache[prevNodes] });
         }
       } catch (error) {
         console.error(error.message);
@@ -59,12 +66,15 @@ export default function App($app) {
     imageView.setState(this.state.selectedFilePath);
   };
 
-  const init = async () => {
+  this.init = async () => {
     try {
       const rootNodes = await request();
       this.setState({ ...this.state, isRoot: true, nodes: rootNodes });
+      cache.root = rootNodes;
     } catch (error) {
       throw new Error(`에러 발생 ${e.message}`);
     }
   };
+
+  this.init();
 }
